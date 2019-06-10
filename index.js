@@ -18,58 +18,20 @@ const args = message.content.slice(prefix.length).split(/ +/);
 const command = args.shift().toLowerCase();
 // logs messages
 client.on('message', message => {
-	console.log(message.content);
+	if (!message.content.startsWith(prefix) || message.author.bot) return;
+
+	const args = message.content.slice(prefix.length).split(/ +/);
+	const command = args.shift().toLowerCase();
+
+	if (!client.commands.has(command)) return;
+
+	try {
+		client.commands.get(command).execute(message, args);
+	}
+ 	catch (error) {
+		console.error(error);
+		message.reply('there was an error trying to execute that command!');
+	}
 });
-// first test command
-if (message.content === `${prefix}ping`) {
-	message.channel.send('Pong.');
-// secoend test command
-} else if (message.content === `${prefix}beep`) {
-	message.channel.send('Boop.');
-}
-// displays server name and user count
-else if (message.content === `${prefix}server`) {
-	message.channel.send(`Server name: ${message.guild.name}\nTotal members: ${message.guild.memberCount}`);
-}
-// shows user name and user id
-else if (message.content === `${prefix}user-info`) {
-	message.channel.send(`Your username: ${message.author.username}\nYour ID: ${message.author.id}`);
-}
-else if (command === 'kick') {
-	// grab the "first" mentioned user from the message
-	// this will return a `User` object, just like `message.author`
-	if (!message.mentions.users.size) {
-		return message.reply('you need to tag a user in order to kick them!');
-	}
-	const taggedUser = message.mentions.users.first();
-
-	message.channel.send(`You wanted to kick: ${taggedUser.username}`);
-}
-else if (command === 'avatar') {
-	if (!message.mentions.users.size) {
-		return message.channel.send(`Your avatar: <${message.author.displayAvatarURL}>`);
-	}
-
-	const avatarList = message.mentions.users.map(user => {
-		return `${user.username}'s avatar: <${user.displayAvatarURL}>`;
-	});
-
-	// send the entire array of strings as a message
-	// by default, discord.js will `.join()` the array with `\n`
-	message.channel.send(avatarList);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 // login to Discord with your app's token
 client.login(token);
